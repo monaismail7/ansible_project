@@ -1,0 +1,97 @@
+---
+- name: Setup Apache Web Server
+  hosts: webservers
+  become: yes
+  become_method: sudo
+  become_user: root
+  tasks:
+    - name: Install httpd
+      yum:
+        name: httpd
+        state: present
+
+    - name: Start httpd service
+      systemd:
+        name: httpd
+        state: started
+        enabled: yes
+
+    - name: Create a sample index.html
+      copy:
+        dest: /var/www/html/index.html
+        content: |
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>Jewelry Store</title>
+              <style>
+                  body {
+                      font-family: Arial, sans-serif;
+                      background-color: #f0f0f0;
+                      color: #333;
+                      text-align: center;
+                      padding: 50px;
+                  }
+                  h1 {
+                      color: #8e44ad;
+                  }
+                  .container {
+                      max-width: 800px;
+                      margin: 0 auto;
+                      padding: 20px;
+                      background: white;
+                      border-radius: 8px;
+                      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+                  }
+                  .product {
+                      margin: 20px 0;
+                      padding: 20px;
+                      border: 1px solid #ccc;
+                      border-radius: 5px;
+                  }
+                  img {
+                      max-width: 100%;
+                      height: auto;
+                  }
+                  .price {
+                      color: #e74c3c;
+                      font-size: 1.5em;
+                  }
+              </style>
+          </head>
+          <body>
+              <div class="container">
+                  <h1>Welcome to Our Jewelry Store</h1>
+                  <p>Explore our exquisite collection of jewelry.</p>
+                  
+                  <div class="product">
+                      <img src="https://images.unsplash.com/photo-1569562342752-efb0586e20f0" alt="Jewelry Item 1">
+                      <h2>Gold Necklace</h2>
+                      <p class="price">$200</p>
+                  </div>
+
+                  <div class="product">
+                      <img src="https://images.unsplash.com/photo-1542281286-7f03b93d3a77" alt="Jewelry Item 2">
+                      <h2>Diamond Ring</h2>
+                      <p class="price">$1500</p>
+                  </div>
+
+                  <div class="product">
+                      <img src="https://images.unsplash.com/photo-1513629902110-f67e57b9eaa7" alt="Jewelry Item 3">
+                      <h2>Silver Bracelet</h2>
+                      <p class="price">$100</p>
+                  </div>
+              </div>
+          </body>
+          </html>
+          
+    - name: Open firewall for HTTP and HTTPS
+      firewalld:
+        service: "{{ item }}"
+        state: enabled
+        permanent: yes
+      loop:
+        - http
+        - https
